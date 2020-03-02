@@ -144,3 +144,10 @@ comdata6 <- matrix(data = comdata2, nrow = 175, ncol = 103, byrow = FALSE, dimna
 View(comdata6)
 aggrestatus <- comdata6[[3]]
 tune.pca(aggrestatus, center = TRUE, scale = TRUE)
+
+comdata7 <- data.matrix(frame = comdata6, rownames.force = NA)
+View(comdata7)
+aggrestatus <- comdata7[[3]]
+tune.pca(aggrestatus, center = TRUE, scale = TRUE)
+
+#Still does not work, look again tomorrow, otherwise ask René and Fiona
