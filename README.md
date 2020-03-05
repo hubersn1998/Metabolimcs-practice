@@ -3,7 +3,9 @@ This is the first script used to test the metabolomics data on the aggression
 
 # Firts attempt to open the test metabolomics files
 
-# libaries
+# Firts attempt to open the test metabolomics files
+
+#libaries
 
 library(foreign)
 library(mixOmics)
@@ -19,8 +21,6 @@ View(datasetdemo)
 
 # Not possible to merge them, because to big, so first remove the missings.
 
-?complete.cases()
-complete.cases(dataset)
 dataset2 <- na.omit(dataset)
 View(dataset2)
 
@@ -30,10 +30,6 @@ datasetdemo[16:17] <- list(NULL)
 head(datasetdemo)
 datasetdemo2 <- na.omit(datasetdemo)
 View(datasetdemo2)
-
-# much more rows were added, so lets try something else
-
-?merge
 
 # Let's check which names to use to merge the data on
 
@@ -56,12 +52,7 @@ View(dataT2)
 
 colnames(dataT2)
 
-# Lets try a first PCA analysis for the aggresion status
 
-aggrestatus <- dataT2$aggression_status
-tune.pca(aggrestatus, center = TRUE, scale = TRUE)
-
-# Does not work because the object has to be a numeric matrix and still have to add the metabolites
 # let's first remove all the unimportant colums
 # We want to be left with ID, sex, age_urine1 and aggression status
 # these are columns 1,9, 353 and 367
@@ -69,14 +60,7 @@ tune.pca(aggrestatus, center = TRUE, scale = TRUE)
 dataT3 <- dataT2 %>%
 select(-(2:8), -(10:352), -(354:366), -(368:373))
 View(dataT3)
-# I think we have removed to many, so let's try again
-dataT2 <- dataT %>%
-  select(-(2:8), -(10:352), -(354:366), -(368:373))
-View(dataT2)
-dataT3 <- na.omit(dataT2)
-View(dataT3)
 
-# Nopp, same result
 # Ok, now lets get in the metabolomics data
 
 metadata <- read.table(file = "C:/Users/Gebruiker/Documents/Master GBH/Stage BehPsy/Data/Metabolomics/20190808_QCedDNormalizedRINTTransformedValuesDF_NoCurium.tsv", sep = "\t", header = TRUE,)
@@ -109,45 +93,35 @@ View(comdata2)
 comdata2$aggression_status.x <- gsub("high", "1", as.character(comdata2$aggression_status.x))
 View(comdata2)
 
-# Lets now try again the PCA, Probably wont work, but lets anyway try
+# Lets now try the PCA, Probably wont work, but lets anyway try
 
-aggrestatus <- comdata2$aggression_status.x
+aggrestatus <- as.numeric(comdata2$aggression_status.x)
 tune.pca(aggrestatus, center = TRUE, scale = TRUE)
 
-# Nopp, still need to make it a numeric matrix
+# Nopp, need to make it a numeric matrix
 
-?data.matrix
-comdata3 <- data.matrix(comdata2, rownames.force = NA)
-View(comdata3)
+comdatameta <- comdata2 %>%
+  select(-(1:4), -(95:103))
+View(comdatameta)
 
-# Dont know if it has worked so lets try
+Metam <- matrix(data = comdatameta, nrow = 175, ncol = 90)
+View(Metam)
+Metam <- Metam[1:90]
+# I get too large of a matrix. Same if i use al the data. 
+# remove everything but the first 90 rows
+# Now lets make it into a data frame
 
-colnames(comdata3)
-aggrestatus <- comdata3["aggression_status.x"]
-tune.pca(aggrestatus, center = TRUE, scale = TRUE)
+Metam2 <- data.matrix(frame = Metam, rownames.force = NA)
+View(Metam2)
 
-# Still needs to be in numeric matrix, so did not work
-# Lets try somethings
+# Looks like a data frame, but has only x1
+# Need help
 
-comdata4 <- data.matrix(frame = comdata2, rownames.force = NA)
-View(comdata4)
-aggrestatus <- comdata4["aggression_status.x"]
-tune.pca(aggrestatus, center = TRUE, scale = TRUE)
-
-comdata5 <- data.matrix(frame = comdata2)
-View(comdata5)
-aggrestatus <- comdata5["aggression_status.x"]
-tune.pca(aggrestatus, center = TRUE, scale = TRUE)
 
 ?matrix
-comdata6 <- matrix(data = comdata2, nrow = 175, ncol = 103, byrow = FALSE, dimnames = NULL)
-View(comdata6)
-aggrestatus <- comdata6[[3]]
-tune.pca(aggrestatus, center = TRUE, scale = TRUE)
+comdatastatus <- comdata2 %>%
+  select(-(1:4), -(95:103))
+View(comdatastatus)
+Statusm <- matrix(data = comdata2, nrow = 175, ncol = 103, byrow = FALSE, dimnames = NULL)
+View(comdata3)
 
-comdata7 <- data.matrix(frame = comdata6, rownames.force = NA)
-View(comdata7)
-aggrestatus <- comdata7[[3]]
-tune.pca(aggrestatus, center = TRUE, scale = TRUE)
-
-#Still does not work, look again tomorrow, otherwise ask René and Fiona
